@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Głosowanie na filmy</title>
+  <link rel="stylesheet" href="/static/style.css" />  
+</head>
+<body>
+
+<h1>Głosowanie na filmy</h1>
+
+<form method="post" action="/movies_vote/add" class="add-movie-form">
+  <label for="imdb_link">Dodaj film (wklej link IMDb):</label><br/>
+  <input type="url" id="imdb_link" name="imdb_link" required size="50" placeholder="https://www.imdb.com/title/tt0110912/" />
+  <button type="submit">Dodaj i zagłosuj</button>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tytuł</th>
+      <th>Plakat</th>
+      <th>Opis filmu</th>
+      <th>Liczba głosów</th>
+      <th>Głosujący</th>
+      <th>Akcja</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for movie in movies %}
+      <tr>
+        <td>{{ movie.title or "Brak tytułu" }}</td>
+        <td>
+          {% if movie.poster and movie.poster != "N/A" %}
+            <img src="{{ movie.poster }}" alt="Plakat {{ movie.title }}" />
+          {% else %}
+            Brak plakatu
+          {% endif %}
+        </td>
+        <td>{{ movie.plot or "Brak opisu" }}</td>
+        <td>{{ movie.voters | length }}</td>
+        <td>
+          {% for voter in movie.voters %}
+            {{ voter.username }}{% if not loop.last %}, {% endif %}
+          {% endfor %}
+          {% if movie.voters|length == 0 %}
+            Brak głosów
+          {% endif %}
+        </td>
+<td>
+  {% if user not in movie.voters %}
+    <form method="post" action="/movies_vote/vote">
+      <input type="hidden" name="movie_id" value="{{ movie.id }}" />
+      <button type="submit">Głosuj</button>
+    </form>
+  {% else %}
+    <form method="post" action="/movies_vote/unvote" style="display:inline;">
+      <input type="hidden" name="movie_id" value="{{ movie.id }}" />
+      <button type="submit" style="background-color:#e74c3c;">Usuń głos</button>
+    </form>
+  {% endif %}
+</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p><a href="/">Wróć</a></p>
+</body>
+</html>

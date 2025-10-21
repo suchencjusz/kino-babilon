@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 from sqlalchemy.orm import Session
-from models import Base, User, Seans, Plan
+from models import Base, User, Seans, Plan, Movie
 from database import engine, SessionLocal
 from schemas import UserCreate, SeansBase, SeansOut, PlanBase
 from auth import get_db, hash_password, verify_password
@@ -484,3 +484,93 @@ def create_admin():
         db.commit()
     db.close()
 
+
+@app.get("/movies_vote", response_class=HTMLResponse)
+def movies_vote(request: Request, db: Session = Depends(get_db)):
+    user = get_user_from_session(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    
+    movies = db.query(Movie).all()
+
+    # Pobieranie danych OMDb dla filmów (możesz cacheować)
+    for movie in movies:
+        movie.omdb_data = get_movie_data_by_imdb_id(movie.imdb_id)
+
+    # Sortowanie filmów wg liczby głosów (od największej)
+    movies.sort(key=lambda m: len(m.voters), reverse=True)
+
+    return templates.TemplateResponse("movies_vote.html", {"request": request, "user": user, "movies": movies})
+
+def save_movie_data(db: Session, imdb_id: str, movie_data: dict):
+    # Sprawdź, czy już istnieje film w bazie
+    movie = db.query(Movie).filter(Movie.imdb_id == imdb_id).first()
+    if not movie:
+        movie = Movie(imdb_id=imdb_id)
+        db.add(movie)
+    
+    # Uzupełnij pola danymi z OMDb
+    movie.title = movie_data.get("title")
+    movie.plot = movie_data.get("plot")
+    movie.rating = movie_data.get("imdbRating")
+    movie.poster = movie_data.get("poster")
+    
+    db.commit()
+    db.refresh(movie)
+    return movie
+
+
+@app.post("/movies_vote/add")
+def add_movie(request: Request, imdb_link: str = Form(...), db: Session = Depends(get_db)):
+    user = get_user_from_session(request, db)
+    if not user:
+        return RedirectResponse("/login")
+
+    imdb_id = extract_imdb_id(imdb_link)
+    if not imdb_id:
+        return RedirectResponse("/movies_vote")
+
+    movie_data = get_movie_data_by_imdb_id(imdb_id)
+    if movie_data:
+        movie = save_movie_data(db, imdb_id, movie_data)
+    else:
+        return RedirectResponse("/movies_vote")
+
+    if movie not in user.voted_movies:
+        user.voted_movies.append(movie)
+        db.commit()
+
+    return RedirectResponse("/movies_vote", status_code=302)
+
+
+@app.post("/movies_vote/vote")
+def vote_movie(request: Request, movie_id: int = Form(...), db: Session = Depends(get_db)):
+    user = get_user_from_session(request, db)
+    if not user:
+        return RedirectResponse("/login")
+
+    movie = db.query(Movie).get(movie_id)
+    if not movie:
+        return RedirectResponse("/movies_vote")
+
+    if movie not in user.voted_movies:
+        user.voted_movies.append(movie)
+        db.commit()
+
+    return RedirectResponse("/movies_vote", status_code=302)
+
+@app.post("/movies_vote/unvote")
+def unvote_movie(request: Request, movie_id: int = Form(...), db: Session = Depends(get_db)):
+    user = get_user_from_session(request, db)
+    if not user:
+        return RedirectResponse("/login")
+    
+    movie = db.query(Movie).get(movie_id)
+    if not movie:
+        return RedirectResponse("/movies_vote")
+    
+    if movie in user.voted_movies:
+        user.voted_movies.remove(movie)
+        db.commit()
+    
+    return RedirectResponse("/movies_vote", status_code=302)
