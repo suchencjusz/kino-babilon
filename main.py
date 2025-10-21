@@ -16,6 +16,9 @@ from fastapi import Query
 from datetime import date
 from sqlalchemy.orm import joinedload
 from fastapi_utils.tasks import repeat_every
+import requests
+
+OMDB_API_KEY = "5430bc67"
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
@@ -24,6 +27,33 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 sessions = {}
+
+def extract_imdb_id(imdb_url: str) -> str:
+    import re
+    pattern = r"(tt\d+)"
+    match = re.search(pattern, imdb_url)
+    if match:
+        return match.group(1)
+    return None
+
+
+def get_movie_data_by_imdb_id(imdb_id: str):
+    url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={OMDB_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+    print("OMDb API Response:", data)
+    if response.status_code == 200 and data.get("Response") == "True":
+        return {
+            "title": data.get("Title"),
+            "poster": data.get("Poster"),
+            "plot": data.get("Plot"),
+            "rating": data.get("imdbRating"),
+            "genre": data.get("Genre"),
+            "director": data.get("Director"),
+        }
+    print("OMDb API Error or no data for", imdb_id)
+    return None
+
 
 def get_user_from_session(request: Request, db: Session):  # POPRAWKA: dodano db
     token = request.cookies.get("session_token")
@@ -102,10 +132,36 @@ def show_calendar(request: Request, db: Session = Depends(get_db)):
     user = get_user_from_session(request, db)
     if not user:
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
-    # Filtrujemy tylko aktualne, niearchiwalne
     seanse = db.query(Seans).options(joinedload(Seans.attendees))\
         .filter(Seans.archiwalny == False).all()
-    return templates.TemplateResponse("calendar.html", {"request": request, "user": user, "seanse": seanse})
+    
+    # Pobranie danych filmów z OMDb API
+    for seans in seanse:
+        imdb_link = getattr(seans, "movie_imdb_link", None) or getattr(seans, "link", None)
+        if imdb_link:
+            imdb_id = extract_imdb_id(imdb_link)
+            if imdb_id:
+                movie_data = get_movie_data_by_imdb_id(imdb_id)
+                if movie_data:
+                    seans.movie_title = movie_data.get("title")
+                    seans.movie_poster = movie_data.get("poster")
+                    seans.movie_plot = movie_data.get("plot")
+                    seans.movie_rating = movie_data.get("rating")
+                    seans.movie_genre = movie_data.get("genre")
+                    seans.movie_director = movie_data.get("director")
+                else:
+                    seans.movie_title = None
+            else:
+                seans.movie_title = None
+
+    return templates.TemplateResponse(
+        "calendar.html", 
+        {
+            "request": request,
+            "user": user,
+            "seanse": seanse
+        }
+    )
 
 @app.get("/plan", response_class=HTMLResponse)
 def plan_form(request: Request, db: Session = Depends(get_db)):
@@ -427,3 +483,4 @@ def create_admin():
         db.add(admin)
         db.commit()
     db.close()
+

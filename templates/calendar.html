@@ -7,10 +7,10 @@
 <h2>Kalendarz seansów</h2>
 <table border="1" style="border-collapse: collapse;">
   <tr><th>Tytuł</th><th>Link</th><th>Pokój</th><th>Data i godzina</th><th>Obecność</th><th>Akcje</th></tr>
-  {% for s in seanse %}
+{% for s in seanse %}
     <tr>
       <td>{{ s.tytul }}</td>
-      <td><a href="{{ s.link }}" target="_blank">Filmweb</a></td>
+      <td><a href="{{ s.link }}" target="_blank">IMDb</a></td>
       <td>{{ s.pokoj }}</td>
       <td>{{ s.data.strftime("%Y-%m-%d %H:%M") }}</td>
       <td>
@@ -24,17 +24,27 @@
         </form>
       </td>
       <td>
-  {% if user.role == 'operator' and s.operator_id == user.id %}
-    <form style="display:inline;" action="/seans/delete" method="post" onsubmit="return confirm('Na pewno usunąć?')">
-      <input type="hidden" name="seans_id" value="{{ s.id }}">
-      <button type="submit" class="delete-seans-btn">Usuń seans</button>
-    </form>
-  {% else %}
-    -
-  {% endif %}
-</td>
+        {% if user.role == 'operator' and s.operator_id == user.id %}
+          <form style="display:inline;" action="/seans/delete" method="post" onsubmit="return confirm('Na pewno usunąć seans?');">
+            <input type="hidden" name="seans_id" value="{{ s.id }}">
+            <button type="submit" class="delete-seans-btn">Usuń seans</button>
+          </form>
+        {% else %}
+          -
+        {% endif %}
+      </td>
     </tr>
-  {% endfor %}
+    <tr>
+      <td colspan="6" style="background: #f9f9f9; padding: 10px;">
+        {% if s.movie_poster and s.movie_poster != "N/A" %}
+          <img src="{{ s.movie_poster }}" alt="Plakat: {{ s.tytul }}" style="float:left; margin-right: 10px; width:100px;"/>
+        {% endif %}
+        <strong>Opis filmu:</strong> {{ s.movie_plot or "Brak opisu" }}<br/>
+        <strong>Ocena IMDb:</strong> {{ s.movie_rating or "Brak oceny" }}
+      </td>
+    </tr>
+{% endfor %}
+
 </table>
 <p><a href="/">Wróć</a></p>
 </body>

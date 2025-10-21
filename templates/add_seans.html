@@ -8,7 +8,7 @@
 {% if msg %}<p style="color:red;">{{ msg }}</p>{% endif %}
 <form action="/add_seans" method="post">
   <input type="text" name="tytul" placeholder="Tytuł filmu" required><br>
-  <input type="text" name="link" placeholder="Link do Filmweb" required><br>
+  <input type="text" name="link" placeholder="Link do IMDb" required><br>
   <input type="text" name="pokoj" placeholder="Pokój seansu" required><br>
   <input name="data" type="datetime-local" required><br>
   <button type="submit">Dodaj</button>
