@@ -416,3 +416,14 @@ def delete_user(user_id: int = Form(...), db: Session = Depends(get_db)):
         db.delete(user)
         db.commit()
     return RedirectResponse("/admin", status_code=303)
+
+@app.on_event("startup")
+def create_admin():
+    db = SessionLocal()
+    admin = db.query(User).filter(User.username == "admin").first()
+    if not admin:
+        hashed = hash_password("kinobabilon")
+        admin = User(username="admin", hashed_password=hashed, role="admin")
+        db.add(admin)
+        db.commit()
+    db.close()

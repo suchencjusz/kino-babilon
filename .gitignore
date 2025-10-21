@@ -1,6 +1,22 @@
+# Środowisko wirtualne Python
 venv/
-*.pyc
+env/
 __pycache__/
-*.sqlite3
+*.pyc
+
+# Pliki bazy danych SQLite
 *.db
+
+# Pliki logów
+*.log
+
+# Pliki konfiguracji środowiska
 .env
+
+# Foldery cache
+__pycache__/
+.cache/
+
+# Inne
+.DS_Store
+
