@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Archiwum Seansów</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Archiwum Seansów</h2>
+
+<p>Zalogowany jako: {{ user.username }}</p>
+
+<table border="1" style="border-collapse: collapse; width: 90%; margin: auto;">
+  <thead style="background-color: #f0f0f0;">
+    <tr>
+      <th>Tytuł Seansu</th>
+      <th>Data i godzina</th>
+      <th>Pokój</th>
+      <th>Obecni widzowie</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for seans in seanse %}
+    <tr>
+      <td><a href="{{ seans.link }}" target="_blank">{{ seans.tytul }}</a></td>
+      <td>{{ seans.data.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ seans.pokoj }}</td>
+      <td>
+        {% if seans.attendees %}
+          <ul style="margin:0; padding-left: 18px;">
+          {% for attendee in seans.attendees %}
+            <li>{{ attendee.username }}</li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          Brak obecnych
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" style="text-align:center;">Brak archiwalnych seansów</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p style="text-align:center; margin: 20px;">
+  <a href="/">Wróć do strony głównej</a> | 
+  <a href="/calendar">Bieżące Seanse</a> | 
+  <a href="/combined">Kalendarz</a>
+</p>
+</body>
+</html>

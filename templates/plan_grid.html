@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Planer - zaznacz dni seansów</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Planer - wybierz dni w kalendarzu</h2>
+
+<div class="nav-months">
+  <a href="/plan?year={{ prev_year }}&month={{ prev_month }}">&laquo; Poprzedni miesiąc</a>
+  <span>{{ year }} - {{ "%02d"|format(month) }}</span>
+  <a href="/plan?year={{ next_year }}&month={{ next_month }}">Następny miesiąc &raquo;</a>
+</div>
+
+<!-- Nad .calendar daj taki blok -->
+<div class="calendar-header">
+  <div>Pon</div>
+  <div>Wt</div>
+  <div>Śr</div>
+  <div>Czw</div>
+  <div>Pt</div>
+  <div>Sob</div>
+  <div>Nd</div>
+</div>
+
+
+<div class="calendar">
+  {% for day in calendar_days %}
+    <div class="day {% if day.is_planned %}planned{% endif %}">
+      <div class="day-number">{{ day.day }}</div>
+
+      {% if day.plans %}
+        <ul class="user-list">
+        {% for plan in day.plans %}
+          <li{% if plan.user_id == user.id %} style="font-weight: bold; color: #27ae60;"{% endif %}>
+            {{ plan.user.username }} – {{ plan.data.strftime("%H:%M") }}
+          </li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="tooltip">
+        {% if day.is_planned %}
+          <form action="/plan" method="post">
+            <input type="hidden" name="delete_plan" value="1">
+            <input type="hidden" name="plan_id" value="{{ day.user_plan.id }}">
+            <button type="submit" class="delete-button">Usuń wybór</button>
+          </form>
+          <p>Wybrałeś tę datę o godzinie {{ day.user_plan.data.strftime("%H:%M") }}</p>
+        {% else %}
+          <form action="/plan" method="post">
+            <input type="hidden" name="add_plan" value="1">
+            <input type="hidden" name="plan_date" value="{{ day.date }}">
+            <label for="godzina">Godzina:</label>
+            <input type="time" name="plan_time" required>
+            <button type="submit" class="present-btn">Zaznacz swoją dostępność</button>
+          </form>
+        {% endif %}
+        <hr>
+        <span style="font-size:0.95em;"><strong>Pozostali użytkownicy:</strong></span>
+        <ul class="user-list">
+          {% for plan in day.plans %}
+            <li>
+              {{ plan.user.username }} – {{ plan.data.strftime("%H:%M") }}
+            </li>
+          {% endfor %}
+          {% if not day.plans %}
+            <li style="color: #999;">Brak zgłoszonych obecności</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+
+<p style="text-align:center; margin: 20px;">
+  <a href="/">Wróć</a>
+</p>
+</body>
+</html>

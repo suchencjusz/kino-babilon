@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Połączony widok - Kalendarz Seansów</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Seanse i widzowie - Kalendarz miesięczny</h2>
+
+<div class="nav-months">
+  <a href="/combined?year={{ prev_year }}&month={{ prev_month }}">&laquo; Poprzedni miesiąc</a>
+  <span>{{ year }} - {{ "%02d"|format(month) }}</span>
+  <a href="/combined?year={{ next_year }}&month={{ next_month }}">Następny miesiąc &raquo;</a>
+</div>
+<div class="calendar-header">
+  <div>Pon</div>
+  <div>Wt</div>
+  <div>Śr</div>
+  <div>Czw</div>
+  <div>Pt</div>
+  <div>Sob</div>
+  <div>Nd</div>
+</div>
+<div class="calendar">
+  {% for day in calendar_days %}
+    <div class="day">
+      <div class="day-number">{{ day.day }}</div>
+      {% for seans in day.seanse %}
+        <div class="seans">{{ seans.tytul }}</div>
+        <div class="tooltip">
+          <h4><a href="{{ seans.link }}" target="_blank">{{ seans.tytul }}</a></h4>
+          <p><strong>Godzina:</strong> {{ seans.data.strftime("%H:%M") }}</p>
+  <form method="post" action="/seans/attendance">
+    <input type="hidden" name="seans_id" value="{{ seans.id }}">
+    <input type="hidden" name="next" value="{{ request.url }}">
+    {% if user in seans.attendees %}
+      <button type="submit" class="absent-btn">Oznacz jako nieobecny</button>
+    {% else %}
+      <button type="submit" class="present-btn">Oznacz jako obecny</button>
+    {% endif %}
+  </form>
+          <p><strong>Obecni:</strong></p>
+          <ul>
+            {% if seans.attendees %}
+              {% for attendee in seans.attendees %}
+                <li>{{ attendee.username }}</li>
+              {% endfor %}
+            {% else %}
+              <li>Brak obecnych</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+
+<p style="text-align:center; margin: 20px;">
+  <a href="/">Wróć do strony głównej</a>
+</p>
+
+</body>
+</html>
+

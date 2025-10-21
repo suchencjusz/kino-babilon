@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Użytkownicy i plany</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Użytkownicy i ich wybrane dni</h2>
+
+<form method="get" action="/users">
+  <label for="data">Pokaż użytkowników planujących na dzień:</label>
+  <input type="date" id="data" name="data" value="{{ selected_date }}">
+  <button type="submit">Filtruj</button>
+  <a href="/users">Wyczyść filtr</a>
+</form>
+
+<table border="1" style="border-collapse: collapse; margin-top: 10px;">
+  <tr><th>Nazwa użytkownika</th><th>Rola</th><th>Wybrane dni</th></tr>
+  {% for u in users %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td>{{ u.role }}</td>
+      <td>
+        {% for p in u.plans %}
+          {{ p.data.strftime("%Y-%m-%d %H:%M") }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<p><a href="/">Wróć</a></p>
+</body>
+</html>

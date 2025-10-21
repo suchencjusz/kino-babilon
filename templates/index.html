@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Strona główna</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h1>Witaj {% if user %}{{ user.username }}{% else %}Gość{% endif %}!</h1>
+
+{% if user %}
+  <p><a href="/logout">Wyloguj</a></p>
+  <p><a href="/calendar">Kalendarz seansów</a></p>
+  <p><a href="/plan">Planer</a></p>
+  <p><a href="/archiwum">Przejdź do archiwum seansów</a></p>
+  
+  {% if user.role in ['operator', 'widz'] %}
+    <p><a href="/combined">Seanse i widzowie (połączony widok)</a></p>
+    <p><a href="/users">Użytkownicy i plany</a></p>
+  {% endif %}
+  
+  {% if user.role == 'operator' %}
+    <p><a href="/add_seans">Dodaj seans</a></p>
+  {% endif %}
+  
+  {% if user.role == 'admin' %}
+    <p><a href="/admin">Panel admina</a></p>
+    <p><a href="/combined">Seanse i widzowie (połączony widok)</a></p>
+    <p><a href="/users">Użytkownicy i plany</a></p>
+    <p><a href="/add_seans">Dodaj seans</a></p>
+  {% endif %}
+
+{% else %}
+  <p><a href="/login">Zaloguj się</a></p>
+  <p><a href="/register">Zarejestruj się</a></p>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+/* Reset marginesów i paddingu */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Styl ciała strony */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+/* Nagłówki */
+h1, h2, h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Nawigacja */
+nav {
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+nav a {
+  color: #2980b9;
+  text-decoration: none;
+  margin: 0 15px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+nav a:hover {
+  background-color: #2980b9;
+  color: white;
+}
+
+/* Linki */
+a {
+  color: #2980b9;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Tabele */
+table {
+  width: 90%;
+  max-width: 900px;
+  margin: 20px auto 40px;
+  border-collapse: collapse;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  background-color: white;
+}
+
+thead tr {
+  background-color: #3498db;
+  color: white;
+}
+
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background-color: #ecf0f1;
+}
+
+/* Formularze */
+form {
+  max-width: 600px;
+  margin: 20px auto 40px;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 6px;
+}
+
+input[type=text],
+input[type=username],
+input[type=password],
+input[type=datetime-local],
+select,
+button {
+  width: 100%;
+  padding: 10px 15px;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* Tooltip - przykład dla kalendarza */
+.tooltip {
+  background-color: rgba(44, 62, 80, 0.95);
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+/* Przyciski usuń */
+.delete-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+}
+
+/* Informacje o braku danych */
+.empty-message {
+  text-align: center;
+  font-style: italic;
+  color: #7f8c8d;
+  margin-top: 20px;
+}
+
+/* Stopka */
+footer {
+  text-align: center;
+  font-size: 0.9em;
+  color: #95a5a6;
+  margin-top: 60px;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7 kolumn - dni tygodnia */
+  grid-auto-rows: 140px; /* wysokość komórki */
+  gap: 5px; /* odstęp między komórkami */
+  padding: 10px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.day {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  position: relative;
+  cursor: default;
+}
+
+.day-number {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.seans {
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  color: #0056b3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tooltip {
+  display: none; /* ukryte domyślnie */
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  z-index: 10;
+  width: 220px;
+  font-size: 0.85em;
+  transition: opacity 0.3s ease;
+  opacity: 0; /* niewidoczny */
+}
+
+.day:hover .tooltip {
+  display: block; /* pokazujemy tooltip po najechaniu */
+  opacity: 1; /* widoczny */
+}
+
+.present-btn {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.absent-btn {
+  background-color: #c0392b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.present-btn:hover {
+  background-color: #2ecc71;
+}
+
+.absent-btn:hover {
+  background-color: #e74c3c;
+}
+
+.day.planned {
+  background: #27ae60 !important; /* zielone tło zaznaczonego dnia */
+  border: 2px solid #219150;
+}
+
+.day {
+  transition: background 0.3s, border 0.3s;
+}
+
+.day:hover .tooltip {
+  display: block;
+}
+
+.user-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.98em;
+}
+
+.user-list li {
+  margin-bottom: 2px;
+  padding: 1px 0;
+}
+
+.day.planned .user-list li[style] {
+  background: #27ae60;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+.tooltip form {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  padding: 0;
+  margin: 2px 0 !important;
+}
+
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-weight: bold;
+  text-align: center;
+  max-width: 1000px;
+  margin: 16px auto 0 auto;
+  font-size: 1.07em;
+  color: #2980b9;
+  letter-spacing: 1px;
+  padding-bottom: 2px;
+}
+
+.delete-seans-btn {
+  width: auto;
+  min-width: 0;
+  padding: 9px 25px;
+  font-size: 1em;
+  margin: 0;
+  border: none;
+  border-radius: 6px;
+  background-color: #3498db;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+  box-shadow: none;
+  transition: background 0.2s;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.delete-seans-btn:hover {
+  background-color: #217dbb;
+}
+
+.nav-months {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px; /* odstęp między linkami i spanem */
+  margin: 20px auto 10px auto; /* wyśrodkowanie względem strony */
+  font-size: 1.12em;
+}
+.nav-months span {
+  font-weight: bold;
+  color: #2c3e50;
+}
+.nav-months a {
+  color: #2980b9;
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.nav-months a:hover {
+  background: #ecf0f1;
+  text-decoration: underline;
+}
+
+td form {
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+.delete-user-btn {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: normal;
+  margin: 0;
+  display: inline-block;
+  padding: 6px 12px;
+}

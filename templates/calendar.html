@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>Kalendarz seansów</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Kalendarz seansów</h2>
+<table border="1" style="border-collapse: collapse;">
+  <tr><th>Tytuł</th><th>Link</th><th>Pokój</th><th>Data i godzina</th><th>Obecność</th><th>Akcje</th></tr>
+  {% for s in seanse %}
+    <tr>
+      <td>{{ s.tytul }}</td>
+      <td><a href="{{ s.link }}" target="_blank">Filmweb</a></td>
+      <td>{{ s.pokoj }}</td>
+      <td>{{ s.data.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>
+        <form action="/seans/attendance" method="post" style="margin:0;">
+          <input type="hidden" name="seans_id" value="{{ s.id }}">
+          {% if user in s.attendees %}
+            <button type="submit">Odznacz obecność</button>
+          {% else %}
+            <button type="submit">Zaznacz obecność</button>
+          {% endif %}
+        </form>
+      </td>
+      <td>
+  {% if user.role == 'operator' and s.operator_id == user.id %}
+    <form style="display:inline;" action="/seans/delete" method="post" onsubmit="return confirm('Na pewno usunąć?')">
+      <input type="hidden" name="seans_id" value="{{ s.id }}">
+      <button type="submit" class="delete-seans-btn">Usuń seans</button>
+    </form>
+  {% else %}
+    -
+  {% endif %}
+</td>
+    </tr>
+  {% endfor %}
+</table>
+<p><a href="/">Wróć</a></p>
+</body>
+</html>
