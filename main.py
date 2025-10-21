@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request, Form
+from fastapi import FastAPI, Depends, HTTPException, Request, Form, status
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -97,6 +97,8 @@ def register_form(request: Request):
 
 @app.post("/register", response_class=HTMLResponse)
 def register_post(request: Request, username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    if len(username) > 50:
+        raise HTTPException(status_code=400, detail="Nazwa użytkownika jest za długa")
     if db.query(User).filter(User.username == username).first():
         return templates.TemplateResponse("register.html", {"request": request, "msg": "Użytkownik już istnieje"})
     hashed = hash_password(password)
@@ -116,6 +118,12 @@ def add_seans_form(request: Request, db: Session = Depends(get_db)):  # POPRAWKA
 @app.post("/add_seans", response_class=HTMLResponse)
 def add_seans_post(request: Request, tytul: str = Form(...), link: str = Form(...), pokoj: str = Form(...), data: str = Form(...), db: Session = Depends(get_db)):  # POPRAWKA: dodano db
     user = get_user_from_session(request, db)  # POPRAWKA: przekazanie db
+    if len(tytul) > 50:
+        raise HTTPException(status_code=400, detail="Tytuł jest za długi")
+    if len(link) > 200:
+        raise HTTPException(status_code=400, detail="Link jest za długi")
+    if len(pokoj) > 50:
+        raise HTTPException(status_code=400, detail="Pokoj jest za długi")
     if not user or user.role != "operator":
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
     try:
@@ -522,6 +530,8 @@ def save_movie_data(db: Session, imdb_id: str, movie_data: dict):
 
 @app.post("/movies_vote/add")
 def add_movie(request: Request, imdb_link: str = Form(...), db: Session = Depends(get_db)):
+    if len(imdb_link) > 200:
+        raise HTTPException(status_code=400, detail="Link jest za długi")
     user = get_user_from_session(request, db)
     if not user:
         return RedirectResponse("/login")
@@ -574,3 +584,29 @@ def unvote_movie(request: Request, movie_id: int = Form(...), db: Session = Depe
         db.commit()
     
     return RedirectResponse("/movies_vote", status_code=302)
+
+@app.get("/change-password", response_class=HTMLResponse)
+def change_password_form(request: Request):
+    return templates.TemplateResponse("change_password.html", {"request": request, "msg": ""})
+
+@app.post("/change-password", response_class=HTMLResponse)
+def change_password_post(request: Request,
+                         old_password: str = Form(...),
+                         new_password: str = Form(...),
+                         db: Session = Depends(get_db)):
+    token = request.cookies.get("session_token")
+    if not token or token not in sessions:
+        return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
+
+    user = sessions[token]
+
+    # Sprawdź poprawność starego hasła
+    if not verify_password(old_password, user.hashed_password):
+        return templates.TemplateResponse("change_password.html", {"request": request, "msg": "Nieprawidłowe stare hasło"})
+
+    # Zahasłuj nowe hasło i zapisz w DB
+    user.hashed_password = hash_password(new_password)
+    db.add(user)
+    db.commit()
+
+    return templates.TemplateResponse("change_password.html", {"request": request, "msg": "Hasło zostało zmienione"})
