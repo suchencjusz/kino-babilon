@@ -1,65 +1,80 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Text
-from sqlalchemy.orm import relationship
-from database import Base
-from sqlalchemy import Table
-
-votes_table = Table(
-    "votes",
-    Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("movie_id", Integer, ForeignKey("movies.id"), primary_key=True)
+from sqlmodel import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    Field,
+    SQLModel,
+    Relationship,
+    DateTime,
 )
 
-attendance_table = Table(
-    "attendance",
-    Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("seans_id", Integer, ForeignKey("seanse.id"), primary_key=True)
-)
 
-class Movie(Base):
-    __tablename__ = "movies"
-    id = Column(Integer, primary_key=True, index=True)
-    imdb_id = Column(String, unique=True, index=True)
-    title = Column(String)
-    plot = Column(Text, nullable=True)       # fabuła filmu
-    rating = Column(String, nullable=True)   # ocena IMDb
-    poster = Column(String, nullable=True)
-
-    voters = relationship("User", secondary=votes_table, back_populates="voted_movies")
-
-class User(Base):
+class User(SQLModel, table=True):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    role = Column(String, default="widz")
-    plans = relationship("Plan", back_populates="user")
-    voted_movies = relationship("Movie", secondary=votes_table, back_populates="voters")
-    attendance = relationship(
-        "Seans",
-        secondary=attendance_table,
-        back_populates="attendees"
+
+    uid: int = Field(default=None, primary_key=True, index=True)
+    discord_id: str = Field(
+        sa_column=Column("discord_id", String, unique=True, index=True)
+    )
+    nickname: str = Field(sa_column=Column("nickname", String))
+    permission_level: int = Field(
+        sa_column=Column("permission_level", Integer, default=0)
     )
 
-class Seans(Base):
-    __tablename__ = "seanse"
-    id = Column(Integer, primary_key=True, index=True)
-    tytul = Column(String)
-    link = Column(String)
-    pokoj = Column(String)
-    data = Column(DateTime)
-    operator_id = Column(Integer, ForeignKey("users.id"))
-    archiwalny = Column(Boolean, default=False)  # nowa kolumna
-    attendees = relationship(
-        "User",
-        secondary=attendance_table,
-        back_populates="attendance"
-    )
 
-class Plan(Base):
-    __tablename__ = "plany"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    data = Column(DateTime)
-    user = relationship("User", back_populates="plans")
+class Media(SQLModel, table=True):
+    __tablename__ = "media"
+
+    mid: int = Field(default=None, primary_key=True, index=True)
+    title: str = Field(sa_column=Column("title", String))
+    year: int = Field(sa_column=Column("year", Integer))
+    description: str = Field(sa_column=Column("description", String))
+    poster_url: str = Field(sa_column=Column("poster_url", String))
+    media_url: str = Field(sa_column=Column("media_url", String))
+    media_type: str = Field(
+        sa_column=Column("media_type", String)
+    )  # 'movie', 'tv_show'
+    media_source: str = Field(
+        sa_column=Column("media_source", String)
+    )  # 'filmweb', 'imdb', 'omdb', 'letterboxd'
+
+
+class Vote(SQLModel, table=True):
+    __tablename__ = "votes"
+
+    vid: int = Field(default=None, primary_key=True, index=True)
+    sid: int = Field(sa_column=Column("sid", Integer, ForeignKey("screenings.sid")))
+    mid: int = Field(sa_column=Column("mid", Integer, ForeignKey("media.mid")))
+    uid: int = Field(sa_column=Column("uid", Integer, ForeignKey("users.uid")))
+
+
+class Screening(SQLModel, table=True):
+    __tablename__ = "screenings"
+
+    sid: int = Field(default=None, primary_key=True, index=True)
+    mid: int = Field(sa_column=Column("mid", Integer, ForeignKey("media.mid")))
+    creator_uid: int = Field(
+        sa_column=Column("creator_uid", Integer, ForeignKey("users.uid"))
+    )
+    start_datetime = Field(sa_column=Column("start_time", DateTime))
+    end_datetime = Field(sa_column=Column("end_time", DateTime))
+    location: str = Field(sa_column=Column("location", String))
+    description: str = Field(sa_column=Column("description", String))
+
+    creator: "User" = Relationship(back_populates="created_screenings")
+
+
+class Attendance(SQLModel, table=True):
+    __tablename__ = "attendances"
+
+    aid: int = Field(default=None, primary_key=True, index=True)
+    sid: int = Field(sa_column=Column("sid", Integer, ForeignKey("screenings.sid")))
+    uid: int = Field(sa_column=Column("uid", Integer, ForeignKey("users.uid")))
+    vote_datetime = Field(sa_column=Column("vote_datetime", DateTime))
+    attendance_status: str = Field(
+        sa_column=Column("attendance_status", String)
+    )  # 'attending', 'not_attending', 'maybe'
+
+
+# backpopulates do zrobienia tam gdzie trzeba

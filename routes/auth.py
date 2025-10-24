@@ -1,0 +1,67 @@
+from typing import List
+from discord import discord
+
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+
+from fastapi_discord import DiscordOAuthClient, RateLimited, Unauthorized, User
+from fastapi_discord.exceptions import ClientSessionNotInitialized
+from fastapi_discord.models import GuildPreview
+
+router = APIRouter()
+
+
+# @router.get("/register")
+# async def register():
+    # return {"url": discord
+
+
+@router.get("/login")
+async def login():
+    return {"url": discord.get_oauth_login_url(state="some_random_state")}
+
+
+@router.get("/callback")
+async def callback(code: str, state: str):
+    token, refresh_token = await discord.get_access_token(code)
+    assert state == "some_random_state"
+    return {"access_token": token, "refresh_token": refresh_token}
+
+
+@router.get(
+    "/authenticated",
+    dependencies=[Depends(discord.requires_authorization)],
+    response_model=bool,
+)
+async def isAuthenticated(token: str = Depends(discord.get_token)):
+    try:
+        auth = await discord.isAuthenticated(token)
+        return auth
+    except Unauthorized:
+        return False
+    
+
+@router.exception_handler(Unauthorized)
+async def unauthorized_error_handler(_, __):
+    return JSONResponse({"error": "Unauthorized"}, status_code=401)
+
+
+@router.exception_handler(RateLimited)
+async def rate_limit_error_handler(_, e: RateLimited):
+    return JSONResponse({"error": "RateLimited", "retry": e.retry_after, "message": e.message}, status_code=429)
+
+
+@router.exception_handler(ClientSessionNotInitialized)
+async def client_session_error_handler(_, e: ClientSessionNotInitialized):
+    print(e)
+    return JSONResponse({"error": "Internal Error"}, status_code=500)
+
+
+@router.get("/user", dependencies=[Depends(discord.requires_authorization)], response_model=User)
+async def get_user(user: User = Depends(discord.user)):
+    return user
+
+
+# @router.get("/guilds", dependencies=[Depends(discord.requires_authorization)], response_model=List[GuildPreview])
+# async def get_guilds(guilds: List = Depends(discord.guilds)):
+#     return guilds

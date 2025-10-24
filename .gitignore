@@ -1,22 +1,31 @@
-# Środowisko wirtualne Python
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.ruff_cache/
+
+# Pytest and tests
+.pytest_cache/
+.coverage
+
+# Virtual environments
+.venv/
 venv/
-env/
-__pycache__/
-*.pyc
+venv2/
+venv_old/
 
-# Pliki bazy danych SQLite
-*.db
-
-# Pliki logów
-*.log
-
-# Pliki konfiguracji środowiska
+# Environment variables and miscellaneous
 .env
+*.env
 
-# Foldery cache
-__pycache__/
-.cache/
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
 
-# Inne
+# Operating system files
 .DS_Store
+Thumbs.db
 
+# Docker compose
+docker-compose.yml
