@@ -9,6 +9,9 @@ from sqlmodel import (
     DateTime,
 )
 
+from typing import Optional
+from datetime import datetime
+
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -57,8 +60,8 @@ class Screening(SQLModel, table=True):
     creator_uid: int = Field(
         sa_column=Column("creator_uid", Integer, ForeignKey("users.uid"))
     )
-    start_datetime = Field(sa_column=Column("start_time", DateTime))
-    end_datetime = Field(sa_column=Column("end_time", DateTime))
+    start_datetime: Optional[datetime] = Field(sa_column=Column("start_time", DateTime))
+    end_datetime: Optional[datetime] = Field(sa_column=Column("end_time", DateTime))
     location: str = Field(sa_column=Column("location", String))
     description: str = Field(sa_column=Column("description", String))
 
@@ -71,7 +74,7 @@ class Attendance(SQLModel, table=True):
     aid: int = Field(default=None, primary_key=True, index=True)
     sid: int = Field(sa_column=Column("sid", Integer, ForeignKey("screenings.sid")))
     uid: int = Field(sa_column=Column("uid", Integer, ForeignKey("users.uid")))
-    vote_datetime = Field(sa_column=Column("vote_datetime", DateTime))
+    vote_datetime: Optional[datetime] = Field(sa_column=Column("vote_datetime", DateTime))
     attendance_status: str = Field(
         sa_column=Column("attendance_status", String)
     )  # 'attending', 'not_attending', 'maybe'
