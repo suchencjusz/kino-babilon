@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - image: suchencjusz/kino_babilon_backed
+        - image: suchencjusz/kino_babilon_backend
           dockerfile: Dockerfile
     steps:
       -

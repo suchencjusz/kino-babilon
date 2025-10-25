@@ -1,20 +1,9 @@
 services:
-  kino_babilon_backed:
-    container_name: kino_babilon_backend
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./:/app
-      - ./kino_babilon.db:/app/kino_babilon.db
-    env_file:
-      - .env
-
   # kino_babilon_backed:
-  #   image: 
-  #   container_name: kino_babilon_backed
+  #   container_name: kino_babilon_backend
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
   #   ports:
   #     - "8000:8000"
   #   volumes:
@@ -22,3 +11,14 @@ services:
   #     - ./kino_babilon.db:/app/kino_babilon.db
   #   env_file:
   #     - .env
+
+  kino_babilon_backend:
+    image: 
+    container_name: suchencjusz/kino_babilon_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - ./kino_babilon.db:/app/kino_babilon.db
+    env_file:
+      - .env
