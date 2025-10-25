@@ -1,23 +1,28 @@
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRouter
 
 from discord import discord
+from db import get_session, create_db_and_tables
+from routes.auth import router as auth_router
 
 import logging
-import uvicorn
-
-
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    create_db_and_tables()
+
     await discord.init()
     yield
-    
-    
+
+
 app = FastAPI(lifespan=lifespan)
 api_router = APIRouter()
 
@@ -33,6 +38,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-api_router.include_router(
-    prefix="/api/v1"
-)
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
+

@@ -16,7 +16,6 @@ venv_old/
 
 # Environment variables and miscellaneous
 .env
-*.env
 
 # Distribution / packaging
 build/
@@ -28,4 +27,7 @@ dist/
 Thumbs.db
 
 # Docker compose
-docker-compose.yml
+dev-docker-compose.yml
+
+# Database file
+kino_babilon.db

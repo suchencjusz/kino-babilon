@@ -1,12 +1,15 @@
+from dotenv import load_dotenv
+import os
 
-from fastapi_discord import DiscordOAuthClient, RateLimited, Unauthorized, User
+load_dotenv()
+
+from fastapi_discord import DiscordOAuthClient
 from fastapi_discord.exceptions import ClientSessionNotInitialized
-from fastapi_discord.models import GuildPreview
 
 
 discord = DiscordOAuthClient(
-    client_id="your_client_id",
-    client_secret="your_client_secret",
-    redirect_uri="your_redirect_uri",
+    client_id=os.getenv("DISCORD_CLIENT_ID"),
+    client_secret=os.getenv("DISCORD_CLIENT_SECRET"),
+    redirect_uri=os.getenv("DISCORD_REDIRECT_URI"),
     scopes=["identify"],
 )
