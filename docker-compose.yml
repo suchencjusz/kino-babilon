@@ -13,8 +13,8 @@ services:
   #     - .env
 
   kino_babilon_backend:
-    image: 
-    container_name: suchencjusz/kino_babilon_backend
+    image: suchencjusz/kino_babilon_backend:master
+    container_name: kino_babilon_backend
     ports:
       - "8000:8000"
     volumes:
