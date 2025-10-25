@@ -3,7 +3,7 @@ name: 🐳 Build & depoly docker image
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
   
 jobs:
   docker:
