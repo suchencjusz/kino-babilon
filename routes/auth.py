@@ -1,16 +1,15 @@
+import os
 import secrets
-from discord import discord
 
 import aiohttp
-
-from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi_discord import Unauthorized
 from sqlmodel import Session
 
-from fastapi_discord import Unauthorized, User as DiscordUser
-
+from crud.user import create_user, get_user_by_discord_id, update_user
 from db import get_session
-from crud.user import get_user_by_discord_id, create_user, update_user
+from discord import discord
 
 router = APIRouter()
 
@@ -24,7 +23,7 @@ router = APIRouter()
 @router.get("/login")
 async def login(response: Response):
     """Returns Discord OAuth login URL with CSRF protection"""
-    
+
     state = secrets.token_urlsafe(32)
 
     response.set_cookie(
@@ -38,13 +37,21 @@ async def login(response: Response):
 async def callback(
     code: str,
     state: str,
+) -> RedirectResponse:
+    frontend_url = os.getenv("FRONTEND_REDIRECT_URL")
+    payload = f"?code={code}&state={state}"
+
+    return RedirectResponse(url=frontend_url + payload)
+
+
+@router.get("/getuser")
+async def get_user(
+    code: str,
+    state: str,
     oauth_state: str = Cookie(None),
     session: Session = Depends(get_session),
 ):
     """Discord OAuth callback - creates or updates user account automatically"""
-
-    if not oauth_state or state != oauth_state:
-        raise HTTPException(status_code=403, detail="Invalid state")
 
     token, refresh_token = await discord.get_access_token(code)
 
@@ -84,9 +91,15 @@ async def callback(
                 "discord_id": db_user.discord_id,
                 "nickname": db_user.nickname,
                 "permission_level": db_user.permission_level,
+                "avatar_url": (
+                    f"https://cdn.discordapp.com/avatars/{discord_user_data['id']}/{discord_user_data['avatar']}.png"
+                    if discord_user_data.get("avatar")
+                    else None
+                ),
             },
         }
     )
+
     response.delete_cookie("oauth_state")
 
     return response
