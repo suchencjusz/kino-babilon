@@ -7,7 +7,7 @@ services:
   #     dockerfile: Dockerfile
   #   container_name: kino-babilon-backend-dev
   #   ports:
-  #     - "8008:8000"
+  #     - "8008:8008"
   #   volumes:
   #     - .:/app
   #     - ./kino_babilon_dev.db:/app/kino_babilon.db
@@ -19,7 +19,7 @@ services:
     image: suchencjusz/kino-babilon-backend:latest
     container_name: kino-babilon-backend
     ports:
-      - "8000:8000"
+      - "8008:8008"
     volumes:
       - .:/app
       - ./kino_babilon.db:/app/kino_babilon.db
