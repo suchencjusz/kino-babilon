@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+if os.path.exists('.env'):
+    from dotenv import load_dotenv
+    load_dotenv()
 
 from sqlmodel import Session, SQLModel, create_engine
 from typing import Generator
