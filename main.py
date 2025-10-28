@@ -15,8 +15,10 @@ from fastapi.routing import APIRouter
 
 from discord import discord
 from db import get_session, create_db_and_tables
+
 from routes.auth import router as auth_router
 from routes.users import router as users_router
+from routes.screenings import router as screenings_router
 
 import logging
 
@@ -45,3 +47,4 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
+app.include_router(screenings_router, prefix="/screenings", tags=["screenings"])
