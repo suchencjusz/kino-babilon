@@ -131,17 +131,17 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-@router.get("/verify")
-async def verify_token(token: str = Depends(discord.get_token)):
-    """Verify if token is valid"""
+# @router.get("/verify")
+# async def verify_token(token: str = Depends(discord.get_token)):
+#     """Verify if token is valid"""
 
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
+#     try:
+#         headers = {"Authorization": f"Bearer {token}"}
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://discord.com/api/users/@me", headers=headers
-            ) as response:
-                return {"valid": response.status == 200}
-    except:
-        return {"valid": False}
+#         async with aiohttp.ClientSession() as session:
+#             async with session.get(
+#                 "https://discord.com/api/users/@me", headers=headers
+#             ) as response:
+#                 return {"valid": response.status == 200}
+#     except:
+#         return {"valid": False}
