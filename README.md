@@ -7,11 +7,11 @@ tu cos bedzie
 `docker-compose.yml`
 
 ## master - teoretycznie działający branch
-```
+```yaml
 services:
-  kino_babilon_backend:
-    image: suchencjusz/kino_babilon_backend:master
-    container_name: kino_babilon_backend
+  kino-babilon-backend:
+    image: suchencjusz/kino-babilon-backend:latest
+    container_name: kino-babilon-backend
     ports:
       - "8000:8000"
     volumes:
@@ -22,13 +22,13 @@ services:
 ```
 
 ## dev - voodoo
-```
+```yaml
 services:
-  kino_babilon_backend:
-    image: suchencjusz/kino_babilon_backend:dev
-    container_name: kino_babilon_backend
+  kino-babilon-backend:
+    image: suchencjusz/kino-babilon-backend:dev
+    container_name: kino-babilon-backend-dev
     ports:
-      - "8000:8000"
+      - "8008:8000"
     volumes:
       - ./:/app
       - ./kino_babilon_dev.db:/app/kino_babilon.db
@@ -39,7 +39,7 @@ services:
 
 https://discord.com/developers/applications -> jakas aplikacja -> OAuth2 -> wypełnić .env
 `.env`
-```
+```env
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
 DISCORD_REDIRECT_URI=http://localhost:8000/auth/callback
@@ -48,13 +48,14 @@ DISCORD_REDIRECT_URI=http://localhost:8000/auth/callback
 # Deweloperka
 
 `Linux`
-```
+```bash
 git clone https://github.com/suchencjusz/kino-babilon
 cd kino-babilon
-git checkout -b dev
+git checkout dev
 python3 -m venv venv
 source ./venv/bin/activate
 pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
-no i se odpalasz po uvicorn tak jak w Dockerfile
+Dokumentacja API: http://localhost:8000/docs
