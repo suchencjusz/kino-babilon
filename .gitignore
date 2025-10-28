@@ -28,6 +28,7 @@ Thumbs.db
 
 # Docker compose
 dev-docker-compose.yml
+docker-compose-dev.yml
 
 # Database file
 kino_babilon.db

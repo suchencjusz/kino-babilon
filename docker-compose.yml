@@ -1,16 +1,24 @@
 services:
-  # kino_babilon_backed:
-  #   container_name: kino_babilon_backend
+
+  # kino_babilon_backend_dev:
+  #   # image: suchencjusz/kino_babilon_backend:dev
+  #
   #   build:
   #     context: .
   #     dockerfile: Dockerfile
+  #
+  #   container_name: kino_babilon_backend_dev
   #   ports:
   #     - "8000:8000"
   #   volumes:
-  #     - ./:/app
-  #     - ./kino_babilon.db:/app/kino_babilon.db
-  #   env_file:
-  #     - .env
+  #     - .:/app
+  #     - db_data:/app
+  #   environment:
+  #     - DISCORD_CLIENT_ID=1431635250605199520
+  #     - DISCORD_CLIENT_SECRET=
+  #     - DISCORD_REDIRECT_URI=http://dev.kino.kranus.pro/auth/callback
+  #     - FRONTEND_REDIRECT_URL=http://dev.kino.kranus.pro
+  #     - DATABASE_URL=sqlite:///./kino_babilon.db
 
   kino_babilon_backend:
     image: suchencjusz/kino_babilon_backend:master
@@ -18,7 +26,11 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app
-      - ./kino_babilon.db:/app/kino_babilon.db
+      - .:/app
+      - db_data:/app
     env_file:
       - .env
+
+volumes:
+  db_data:
+
