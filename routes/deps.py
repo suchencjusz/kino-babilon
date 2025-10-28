@@ -1,3 +1,4 @@
+import aiohttp
 from fastapi import Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session
@@ -27,16 +28,23 @@ async def get_current_user(
     token = credentials.credentials
 
     try:
-        discord_user = await discord.user(token)
-    except Unauthorized:
+        headers = {"Authorization": f"Bearer {token}"}
+        async with aiohttp.ClientSession() as aio_session:
+            async with aio_session.get(
+                "https://discord.com/api/users/@me", headers=headers
+            ) as response:
+                if response.status != 200:
+                    raise HTTPException(status_code=401, detail="Invalid or expired token")
+                discord_user_data = await response.json()
+    except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    db_user = get_user_by_discord_id(session, str(discord_user.id))
+    db_user = get_user_by_discord_id(session, str(discord_user_data["id"]))
     if db_user is None:
         db_user = create_user(
             session=session,
-            discord_id=str(discord_user.id),
-            nickname=discord_user.username,
+            discord_id=str(discord_user_data["id"]),
+            nickname=discord_user_data["username"],
             permission_level=0,
         )
 
