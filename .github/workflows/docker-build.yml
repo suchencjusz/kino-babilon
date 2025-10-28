@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'master'
+      - 'dev'
   
 jobs:
   docker:
@@ -13,6 +14,12 @@ jobs:
         include:
         - image: suchencjusz/kino_babilon_backend
           dockerfile: Dockerfile
+          branch: master
+          tag_suffix: latest
+        - image: suchencjusz/kino_babilon_backend
+          dockerfile: Dockerfile
+          branch: dev
+          tag_suffix: dev
     steps:
       -
           name: Checkout
@@ -29,9 +36,12 @@ jobs:
           uses: docker/metadata-action@v4
           with:
             images: ${{ matrix.image }}
+            tags: |
+              type=raw,value=${{ matrix.tag_suffix }}
       -
           name: Build and push
           uses: docker/build-push-action@v4
+          if: github.ref == format('refs/heads/{0}', matrix.branch)
           with:
             context: .
             file: ${{ matrix.dockerfile }}
