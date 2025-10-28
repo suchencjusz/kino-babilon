@@ -13,12 +13,6 @@ from discord import discord
 
 router = APIRouter()
 
-#
-# to do:
-# - dopisac eleganckie response models :)))
-# - dopisac logout elegancki safe i wgl
-#
-
 
 @router.get("/login")
 async def login(response: Response):
