@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
-if os.path.exists('.env'):
+if os.path.exists(".env"):
     from dotenv import load_dotenv
+
     load_dotenv()
 
 from fastapi import FastAPI
@@ -15,6 +16,7 @@ from fastapi.routing import APIRouter
 from discord import discord
 from db import get_session, create_db_and_tables
 from routes.auth import router as auth_router
+from routes.users import router as users_router
 
 import logging
 
@@ -28,7 +30,6 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-api_router = APIRouter()
 
 
 logging.basicConfig(level=logging.INFO)
@@ -43,4 +44,4 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
-
+app.include_router(users_router, prefix="/users", tags=["users"])
