@@ -76,10 +76,15 @@ class ScreeningResponse(BaseModel):
     selection_mode: SelectionMode
 
 
+class BasicScreeningResponse(BaseModel):
+    """Basic Response model screeningu"""
+
+    start_datetime: datetime
+
+
 #
 # endpointy
 #
-
 
 
 @router.post("/", response_model=ScreeningResponse, summary="Create screening")
@@ -119,13 +124,44 @@ async def create_screening_endpoint(
     return screening
 
 
-@router.get("/by-date-range", response_model=List[ScreeningResponse], summary="Get screenings by date range")
+@router.get(
+    "/basic-by-date-range",
+    response_model=List[BasicScreeningResponse],
+    summary="Get basic screenings by date range",
+)
+async def get_basic_screenings_by_date_range(
+    start_date: datetime, end_date: datetime, session: Session = Depends(get_session)
+):
+    """
+    Zwraca listę podstawowych informacji o screeningach, które są aktywne w podanym zakresie dat.
+    Oznacza to, że na liście znajdą się seanse, które zaczynają się przed `end_date` i kończą po `start_date`.
+    Uwzględnia to seanse, które w całości lub częściowo pokrywają się z podanym przedziałem czasowym.
+
+    - start_date: początek zakresu (ISO format) (np: 2024-01-01T00:00:00)
+    - end_date: koniec zakresu (ISO format) (np: 2024-01-01T00:00:00)
+    """
+
+    if end_date <= start_date:
+        raise HTTPException(status_code=400, detail="end_date must be after start_date")
+
+    screenings = session.exec(
+        select(ScreeningModel.start_datetime)
+        .where(ScreeningModel.start_datetime < end_date)
+        .where(ScreeningModel.end_datetime > start_date)
+    ).all()
+
+    return screenings
+
+
+@router.get(
+    "/by-date-range",
+    response_model=List[ScreeningResponse],
+    summary="Get screenings by date range",
+)
 async def get_screenings_by_date_range(
     start_date: datetime,
     end_date: datetime,
     session: Session = Depends(get_session),
-    skip: int = 0,
-    limit: int = 100,
 ):
     """
     Zwraca listę screeningów, które są aktywne w podanym zakresie dat.
@@ -134,8 +170,6 @@ async def get_screenings_by_date_range(
 
     - start_date: początek zakresu (ISO format) (np: 2024-01-01T00:00:00)
     - end_date: koniec zakresu (ISO format) (np: 2024-01-01T00:00:00)
-    - skip: ile pomijać (dla paginacji)
-    - limit: ile zwrócić
     """
 
     if end_date <= start_date:
@@ -145,8 +179,6 @@ async def get_screenings_by_date_range(
         select(ScreeningModel)
         .where(ScreeningModel.start_datetime < end_date)
         .where(ScreeningModel.end_datetime > start_date)
-        .offset(skip)
-        .limit(limit)
     ).all()
 
     return screenings
@@ -222,9 +254,11 @@ async def get_my_screenings_endpoint(
     return screenings
 
 
-@router.put("/{sid}", response_model=ScreeningResponse, summary="Update screening")
+@router.put(
+    "/{screening_id}", response_model=ScreeningResponse, summary="Update screening"
+)
 async def update_screening_endpoint(
-    sid: int,
+    screening_id: int,
     payload: ScreeningUpdate,
     session: Session = Depends(get_session),
     current_user: UserModel = Depends(is_screening_owner_or_moderator),
@@ -235,7 +269,7 @@ async def update_screening_endpoint(
     - lub permisji>=20
     """
 
-    screening = get_screening(session=session, sid=sid)
+    screening = get_screening(session=session, sid=screening_id)
     if not screening:
         raise HTTPException(status_code=404, detail="Screening not found")
 
@@ -259,9 +293,9 @@ async def update_screening_endpoint(
     return updated_screening
 
 
-@router.delete("/{sid}", summary="Delete screening")
+@router.delete("/{screening_id}", summary="Delete screening")
 async def delete_screening_endpoint(
-    sid: int,
+    screening_id: int,
     current_user: UserModel = Depends(is_screening_owner_or_moderator),
     session: Session = Depends(get_session),
 ):
@@ -271,7 +305,7 @@ async def delete_screening_endpoint(
     - lub permisje>=20
     """
 
-    screening = get_screening(session=session, sid=sid)
+    screening = get_screening(session=session, sid=screening_id)
 
     if not screening:
         raise HTTPException(status_code=404, detail="Screening not found")
@@ -279,6 +313,6 @@ async def delete_screening_endpoint(
     if screening.creator_uid != current_user.uid:
         raise HTTPException(status_code=403, detail="Only creator can delete screening")
 
-    delete_screening(session=session, sid=sid)
+    delete_screening(session=session, sid=screening_id)
 
     return {"message": "Screening deleted successfully"}
