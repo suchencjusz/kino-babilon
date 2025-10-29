@@ -200,14 +200,14 @@ async def get_all_screenings(
     return screenings
 
 
-@router.get("/{sid}", response_model=ScreeningResponse, summary="Get screening by ID")
+@router.get("/{screening_id}", response_model=ScreeningResponse, summary="Get screening by ID")
 async def get_screening_endpoint(
-    sid: int,
+    screening_id: int,
     session: Session = Depends(get_session),
 ):
     """Zwraca screening po ID"""
 
-    screening = get_screening(session=session, sid=sid)
+    screening = get_screening(session=session, sid=screening_id)
 
     if not screening:
         raise HTTPException(status_code=404, detail="Screening not found")
