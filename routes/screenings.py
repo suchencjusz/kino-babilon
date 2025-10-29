@@ -1,22 +1,19 @@
 import os
-
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from routes.deps import get_current_user, OwnerOrPermissionChecker
+from crud.screenings import (create_screening, delete_screening, get_screening,
+                             get_screenings, get_screenings_by_creator,
+                             update_screening)
 from db import get_session
-from models import Screening as ScreeningModel, User as UserModel, SelectionMode
-from crud.screenings import (
-    get_screening,
-    get_screenings,
-    get_screenings_by_creator,
-    create_screening,
-    update_screening,
-    delete_screening,
-)
+from models import Screening as ScreeningModel
+from models import SelectionMode
+from models import User as UserModel
+from routes.deps import OwnerOrPermissionChecker, get_current_user
 
 if os.path.exists(".env"):
     from dotenv import load_dotenv
@@ -200,7 +197,9 @@ async def get_all_screenings(
     return screenings
 
 
-@router.get("/{screening_id}", response_model=ScreeningResponse, summary="Get screening by ID")
+@router.get(
+    "/{screening_id}", response_model=ScreeningResponse, summary="Get screening by ID"
+)
 async def get_screening_endpoint(
     screening_id: int,
     session: Session = Depends(get_session),

@@ -1,3 +1,5 @@
+import aiohttp
+
 from models import Media
 
 # class Media(SQLModel, table=True):
@@ -20,6 +22,10 @@ from models import Media
 
 class CrawlerBase:
 
+    def __init__(self, _session: aiohttp.ClientSession = None):
+        if _session is None:
+            raise ValueError("An aiohttp ClientSession must be provided.")
+        self._session = _session
 
     async def crawl_media(self, media: Media):
         raise NotImplementedError("This method should be overridden by subclasses.")

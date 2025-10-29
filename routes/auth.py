@@ -13,6 +13,7 @@ from discord import discord
 
 if os.path.exists(".env"):
     from dotenv import load_dotenv
+
     load_dotenv()
 
 router = APIRouter()
@@ -22,6 +23,7 @@ router = APIRouter()
 # 20 - moderator
 # 100 - admin
 #
+
 
 @router.get("/login")
 async def login(response: Response):

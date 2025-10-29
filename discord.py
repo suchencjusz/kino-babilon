@@ -1,13 +1,13 @@
-from dotenv import load_dotenv
 import os
 
-if os.path.exists('.env'):
-    from dotenv import load_dotenv
+from dotenv import load_dotenv
+
+if os.path.exists(".env"):
+    from dotenv import load_dotenv  # noqa F811
+
     load_dotenv()
 
 from fastapi_discord import DiscordOAuthClient
-from fastapi_discord.exceptions import ClientSessionNotInitialized
-
 
 discord = DiscordOAuthClient(
     client_id=os.getenv("DISCORD_CLIENT_ID"),

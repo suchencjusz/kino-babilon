@@ -1,6 +1,6 @@
 # Kino Babilon
 
-tu cos bedzie
+[https://kino.kranus.pro/](https://kino.kranus.pro/)
 
 # Instalacja
 
@@ -8,41 +8,35 @@ tu cos bedzie
 
 ## master - teoretycznie działający branch
 ```yaml
+volumes:
+  kino-db-volume:
+    driver: local
+
 services:
   kino-babilon-backend:
     image: suchencjusz/kino-babilon-backend:latest
     container_name: kino-babilon-backend
     ports:
-      - "8000:8000"
+      - "8008:8008"
     volumes:
-      - ./:/app
-      - ./kino_babilon.db:/app/kino_babilon.db
+      - kino-db-volume:/app/data
     env_file:
       - .env
 ```
 
-## dev - voodoo
-```yaml
-services:
-  kino-babilon-backend:
-    image: suchencjusz/kino-babilon-backend:dev
-    container_name: kino-babilon-backend-dev
-    ports:
-      - "8008:8000"
-    volumes:
-      - ./:/app
-      - ./kino_babilon_dev.db:/app/kino_babilon.db
-    env_file:
-      - .env
-```
+wszystko jest w docker-compose.yml w repo
 
 
 https://discord.com/developers/applications -> jakas aplikacja -> OAuth2 -> wypełnić .env
 `.env`
 ```env
-DISCORD_CLIENT_ID=
+DISCORD_CLIENT_ID=1431635250605199520
 DISCORD_CLIENT_SECRET=
-DISCORD_REDIRECT_URI=http://localhost:8000/auth/callback
+DISCORD_REDIRECT_URI=http://127.0.0.1:8008/auth/callback
+FRONTEND_REDIRECT_URL=http://127.0.0.1:8008
+DATABASE_URL=sqlite:///./data/database.db
+FRONTEND_REDIRECT_URL=http://127.0.0.1:8008/auth/getuser
+FIRST_ADMIN_DISCORD_ID=
 ```
 
 # Deweloperka
@@ -58,4 +52,4 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Dokumentacja API: http://localhost:8000/docs
+Dokumentacja API: http://localhost:8008/docs

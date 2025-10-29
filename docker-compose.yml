@@ -1,3 +1,8 @@
+volumes:
+  kino-db-volume:
+    driver: local
+
+
 services:
 
   # DEV
@@ -5,23 +10,27 @@ services:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile
+  #
   #   container_name: kino-babilon-backend-dev
+  #   restart: unless-stopped
   #   ports:
   #     - "8008:8008"
   #   volumes:
-  #     - .:/app
-  #     - ./kino_babilon_dev.db:/app/kino_babilon.db
+  #     - kino-db-volume:/app/data
   #   env_file:
   #     - .env
+
 
   # MASTER
   kino-babilon-backend:
     image: suchencjusz/kino-babilon-backend:latest
     container_name: kino-babilon-backend
+    restart: unless-stopped
     ports:
       - "8008:8008"
     volumes:
-      - .:/app
-      - ./kino_babilon.db:/app/kino_babilon.db
+      - kino-db-volume:/app/data
     env_file:
       - .env
+
+

@@ -1,21 +1,18 @@
 import os
-import secrets
 
-import aiohttp
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
-from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi_discord import Unauthorized
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
+# from fastapi_discord import Unauthorized
 from sqlmodel import Session
 
-from routes.deps import require_permission, get_current_user
-from models import User as UserModel
-
-from crud.user import create_user, get_user_by_discord_id, update_user
+from crud.user import get_user_by_discord_id, update_user
 from db import get_session
-from discord import discord
+from models import User as UserModel  # noqa F401
+from routes.deps import get_current_user, require_permission
 
 if os.path.exists(".env"):
     from dotenv import load_dotenv
+
     load_dotenv()
 
 router = APIRouter()
@@ -44,12 +41,13 @@ async def change_permission(
     if new_level > current_user.permission_level:
         raise HTTPException(
             status_code=403,
-            detail=f"Nie możesz nadać uprawnień (poziom {new_level}) wyższych niż własne (poziom {current_user.permission_level}).",
+            detail=f"Nie możesz nadać uprawnień ({new_level}) wyższych niż własne ({current_user.permission_level}).",
         )
 
     if str(discord_id) == current_user.discord_id:
         raise HTTPException(
-            status_code=400, detail="Nie możesz zmienić własnych uprawnień za pomocą tego endpointu."
+            status_code=400,
+            detail="Nie możesz zmienić własnych uprawnień za pomocą tego endpointu.",
         )
 
     user_to_update = get_user_by_discord_id(session, str(discord_id))
@@ -90,7 +88,9 @@ async def ensure_admin(
         )
 
     if current_user.permission_level == 100:
-        return JSONResponse(content={"message": "Już posiadasz uprawnienia administratora."})
+        return JSONResponse(
+            content={"message": "Już posiadasz uprawnienia administratora."}
+        )
 
     updated_user = update_user(session, current_user, permission_level=100)
 

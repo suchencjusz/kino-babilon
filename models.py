@@ -1,36 +1,31 @@
-from sqlmodel import (
-    Column,
-    Integer,
-    String,
-    ForeignKey,
-    Field,
-    SQLModel,
-    Relationship,
-    DateTime,
-)
-
-from typing import Optional
 from datetime import datetime
-
 from enum import Enum
+from typing import Optional
+
+from sqlmodel import (Column, DateTime, Field, ForeignKey, Integer,
+                      Relationship, SQLModel, String)
 
 #
 # ENUMS
 #
+
 
 class SelectionMode(str, Enum):
     OPERATOR_CHOICE = "operator_choice"
     CURATED_VOTE = "curated_vote"
     OPEN_VOTE = "open_vote"
 
+
 class AttendanceStatus(str, Enum):
     ATTENDING = "attending"
     NOT_ATTENDING = "not_attending"
     MAYBE = "maybe"
 
+
 class MediaType(str, Enum):
     MOVIE = "movie"
     TV_SHOW = "tv_show"
+
 
 class MediaSource(str, Enum):
     FILMWEB = "filmweb"
@@ -38,9 +33,11 @@ class MediaSource(str, Enum):
     OMDB = "omdb"
     LETTERBOXD = "letterboxd"
 
+
 #
 # TABELKI
 #
+
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -66,12 +63,18 @@ class Media(SQLModel, table=True):
 
     mid: int = Field(default=None, primary_key=True, index=True)
 
-    url: str = Field(sa_column=Column("url", String, nullable=True, unique=True, index=True))
+    url: str = Field(
+        sa_column=Column("url", String, nullable=True, unique=True, index=True)
+    )
     title: Optional[str] = Field(sa_column=Column("title", String, nullable=True))
     year: Optional[int] = Field(sa_column=Column("year", Integer, nullable=True))
-    description: Optional[str] = Field(sa_column=Column("description", String, nullable=True))
-    poster_url: Optional[str] = Field(sa_column=Column("poster_url", String, nullable=True))
-    
+    description: Optional[str] = Field(
+        sa_column=Column("description", String, nullable=True)
+    )
+    poster_url: Optional[str] = Field(
+        sa_column=Column("poster_url", String, nullable=True)
+    )
+
     media_type: MediaType = Field(default=MediaType.MOVIE)
     media_source: MediaSource = Field(default=MediaSource.FILMWEB)
 
@@ -114,7 +117,9 @@ class Screening(SQLModel, table=True):
 
     sid: int = Field(default=None, primary_key=True, index=True)
 
-    mid: Optional[int] = Field(sa_column=Column("mid", Integer, ForeignKey("media.mid")))
+    mid: Optional[int] = Field(
+        sa_column=Column("mid", Integer, ForeignKey("media.mid"))
+    )
 
     creator_uid: int = Field(
         sa_column=Column("creator_uid", Integer, ForeignKey("users.uid"))
@@ -138,7 +143,7 @@ class Attendance(SQLModel, table=True):
     __tablename__ = "attendances"
 
     aid: int = Field(default=None, primary_key=True, index=True)
-    
+
     sid: int = Field(sa_column=Column("sid", Integer, ForeignKey("screenings.sid")))
     uid: int = Field(sa_column=Column("uid", Integer, ForeignKey("users.uid")))
     created_at: Optional[datetime] = Field(sa_column=Column("created_at", DateTime))

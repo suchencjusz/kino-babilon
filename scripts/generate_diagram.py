@@ -1,9 +1,9 @@
-from sqlmodel import SQLModel
 from sqlalchemy import create_engine
 from sqlalchemy_schemadisplay import create_schema_graph
+from sqlmodel import SQLModel
 
 # import your models so SQLModel.metadata knows them
-from models import *  # noqa: F401
+from models import *  # noqa: F401, F403
 
 engine = create_engine("sqlite:///:memory:")
 

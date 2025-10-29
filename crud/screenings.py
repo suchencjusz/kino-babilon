@@ -1,7 +1,9 @@
-from typing import Optional, List
-from sqlmodel import Session, select
-from models import Screening
 from datetime import datetime
+from typing import List, Optional
+
+from sqlmodel import Session, select
+
+from models import Screening
 
 
 def get_screening(session: Session, sid: int) -> Optional[Screening]:
@@ -9,7 +11,9 @@ def get_screening(session: Session, sid: int) -> Optional[Screening]:
     return session.get(Screening, sid)
 
 
-def get_screenings(session: Session, skip: int = 0, limit: int = 100) -> List[Screening]:
+def get_screenings(
+    session: Session, skip: int = 0, limit: int = 100
+) -> List[Screening]:
     """Get all screenings with pagination"""
     statement = select(Screening).offset(skip).limit(limit)
     return session.exec(statement).all()

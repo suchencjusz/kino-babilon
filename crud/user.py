@@ -1,11 +1,13 @@
 import os
+from typing import List, Optional
 
-from typing import Optional, List
 from sqlmodel import Session, select
+
 from models import User
 
 if os.path.exists(".env"):
     from dotenv import load_dotenv
+
     load_dotenv()
 
 
@@ -27,7 +29,9 @@ def get_users(session: Session, skip: int = 0, limit: int = 100) -> List[User]:
     return session.exec(statement).all()
 
 
-def create_user(session: Session, discord_id: str, nickname: str, permission_level: int = 0) -> User:
+def create_user(
+    session: Session, discord_id: str, nickname: str, permission_level: int = 0
+) -> User:
     """Create new user"""
 
     # --- first admin ---
@@ -38,15 +42,13 @@ def create_user(session: Session, discord_id: str, nickname: str, permission_lev
     # -------------------
 
     user = User(
-        discord_id=discord_id,
-        nickname=nickname,
-        permission_level=permission_level
+        discord_id=discord_id, nickname=nickname, permission_level=permission_level
     )
-    
+
     session.add(user)
     session.commit()
     session.refresh(user)
-    
+
     return user
 
 

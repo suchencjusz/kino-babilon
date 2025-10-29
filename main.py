@@ -1,27 +1,24 @@
 import os
-
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
 if os.path.exists(".env"):
-    from dotenv import load_dotenv
+    from dotenv import load_dotenv  # noqa F811
 
     load_dotenv()
 
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.routing import APIRouter
 
+from db import create_db_and_tables
 from discord import discord
-from db import get_session, create_db_and_tables
-
 from routes.auth import router as auth_router
-from routes.users import router as users_router
-from routes.screenings import router as screenings_router
 from routes.permissions import router as permissions_router
-
-import logging
+from routes.screenings import router as screenings_router
+from routes.users import router as users_router
 
 
 @asynccontextmanager
