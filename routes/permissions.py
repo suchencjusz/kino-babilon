@@ -27,7 +27,7 @@ router = APIRouter()
 #
 
 
-@router.put("/change_permission/{discord_id}/{new_level}")
+@router.put("/change-permission/{discord_id}/{new_level}")
 async def change_permission(
     discord_id: int,
     new_level: int,
@@ -65,7 +65,7 @@ async def change_permission(
     )
 
 
-@router.get("/ensure_admin")
+@router.get("/ensure-admin")
 async def ensure_admin(
     current_user: UserModel = Depends(get_current_user),
     session: Session = Depends(get_session),
