@@ -11,8 +11,17 @@ from crud.user import create_user, get_user_by_discord_id, update_user
 from db import get_session
 from discord import discord
 
+if os.path.exists(".env"):
+    from dotenv import load_dotenv
+    load_dotenv()
+
 router = APIRouter()
 
+#
+# 0 - niezalogowany
+# 20 - moderator
+# 100 - admin
+#
 
 @router.get("/login")
 async def login(response: Response):
@@ -32,7 +41,7 @@ async def callback(
     code: str,
     state: str,
 ) -> RedirectResponse:
-    frontend_url = os.getenv("FRONTEND_REDIRECT_URL")
+    frontend_url = os.getenv("FRONTEND_REDIRECT_URL", "not in .env")
     payload = f"?code={code}&state={state}"
 
     return RedirectResponse(url=frontend_url + payload)
