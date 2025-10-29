@@ -66,11 +66,12 @@ class Media(SQLModel, table=True):
 
     mid: int = Field(default=None, primary_key=True, index=True)
 
-    title: str = Field(sa_column=Column("title", String))
-    year: int = Field(sa_column=Column("year", Integer))
-    description: str = Field(sa_column=Column("description", String))
-    poster_url: str = Field(sa_column=Column("poster_url", String))
-    media_url: str = Field(sa_column=Column("media_url", String))
+    url: str = Field(sa_column=Column("url", String, nullable=True, unique=True, index=True))
+    title: Optional[str] = Field(sa_column=Column("title", String, nullable=True))
+    year: Optional[int] = Field(sa_column=Column("year", Integer, nullable=True))
+    description: Optional[str] = Field(sa_column=Column("description", String, nullable=True))
+    poster_url: Optional[str] = Field(sa_column=Column("poster_url", String, nullable=True))
+    
     media_type: MediaType = Field(default=MediaType.MOVIE)
     media_source: MediaSource = Field(default=MediaSource.FILMWEB)
 

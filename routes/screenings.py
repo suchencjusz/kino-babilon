@@ -119,6 +119,7 @@ async def create_screening_endpoint(
     return screening
 
 
+@router.get("/by_date_range", response_model=List[ScreeningResponse], summary="Get screenings by date range")
 async def get_screenings_by_date_range(
     start_date: datetime,
     end_date: datetime,

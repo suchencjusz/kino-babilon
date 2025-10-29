@@ -10,7 +10,6 @@ from models import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
-# ... (funkcja get_current_user bez zmian) ...
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
     session: Session = Depends(get_session),
