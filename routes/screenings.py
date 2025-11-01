@@ -142,7 +142,7 @@ async def get_basic_screenings_by_date_range(
         raise HTTPException(status_code=400, detail="end_date must be after start_date")
 
     screenings = session.exec(
-        select(ScreeningModel.start_datetime)
+        select(ScreeningModel)
         .where(ScreeningModel.start_datetime < end_date)
         .where(ScreeningModel.end_datetime > start_date)
     ).all()
