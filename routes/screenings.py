@@ -315,3 +315,5 @@ async def delete_screening_endpoint(
     delete_screening(session=session, sid=screening_id)
 
     return {"message": "Screening deleted successfully"}
+
+# to day co jest kurwa grane

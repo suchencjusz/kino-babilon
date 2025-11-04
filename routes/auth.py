@@ -2,7 +2,7 @@ import os
 import secrets
 
 import aiohttp
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi_discord import Unauthorized
 from sqlmodel import Session
@@ -26,10 +26,19 @@ router = APIRouter()
 
 
 @router.get("/login")
-async def login(response: Response):
+async def login(response: Response, callback_url: str = None):
     """Returns Discord OAuth login URL with CSRF protection"""
 
     state = secrets.token_urlsafe(32)
+
+    if callback_url:
+        response.set_cookie(
+            key="oauth_callback_url",
+            value=callback_url,
+            max_age=600,
+            httponly=True,
+            samesite="lax"
+        )
 
     response.set_cookie(
         key="oauth_state", value=state, max_age=600, httponly=True, samesite="lax"
@@ -40,11 +49,16 @@ async def login(response: Response):
 
 @router.get("/callback")
 async def callback(
+    request: Request,
     code: str,
     state: str,
 ) -> RedirectResponse:
     frontend_url = os.getenv("FRONTEND_REDIRECT_URL", "not in .env")
     payload = f"?code={code}&state={state}"
+
+    request.cookies.get("oauth_callback_url")
+    if request.cookies.get("oauth_callback_url"):
+        frontend_url = request.cookies.get("oauth_callback_url")
 
     return RedirectResponse(url=frontend_url + payload)
 
